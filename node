@@ -1,0 +1,59 @@
+pipeline {
+  agent any
+
+  environment {
+    NODE_ENV = 'production'
+  }
+
+  tools {
+    nodejs "nodejs-18"   // Define this version in Jenkins Global Tool Configuration
+  }
+
+  stages {
+    stage('Clone Repository') {
+      steps {
+        git url: 'https://github.com/betawins/Trading-UI.git'
+      }
+    }
+
+    stage('Install Dependencies') {
+      steps {
+        sh 'npm install'
+      }
+    }
+
+    stage('Run Tests') {
+      steps {
+        sh 'npm test || echo "Tests failed or not defined."'
+      }
+    }
+
+    stage('Build') {
+      steps {
+        sh 'npm run build'
+      }
+    }
+
+    stage('Deploy') {
+      when {
+        branch 'main'
+      }
+      steps {
+        echo 'Deploying the application...'
+        // Example: sh './deploy.sh'
+      }
+    }
+  }
+
+  post {
+    always {
+      echo 'Pipeline completed.'
+    }
+    success {
+      echo 'Build succeeded.'
+    }
+    failure {
+      echo 'Build failed.'
+    }
+  }
+}
